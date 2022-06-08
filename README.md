@@ -1,6 +1,6 @@
 # Swagger generated server
 
-Spring Boot Server for Loans
+Spring Boot Server for Loans Common API
 
 
 ## Overview  
