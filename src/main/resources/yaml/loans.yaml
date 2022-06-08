@@ -1,0 +1,640 @@
+---
+swagger: "2.0"
+info:
+  x-ibm-name: loans
+  title: Loans
+  version: 1.0.2
+  description: >-
+    [HTML Docs](/specs/loans/index.html)
+
+    Obtain info about a specific lending contract
+schemes:
+- https
+basePath: /loans
+consumes:
+- application/json
+produces:
+- application/json
+securityDefinitions:
+  JWTProfile:
+    type: oauth2
+    description: OAuth Grant type, JWT Profile
+    flow: implicit
+    scopes:
+      loansdet.read: Loan details static scope
+    authorizationUrl: "http://host.com"
+    x-tokenIntrospect:
+      url: $(security-url)
+  Security OAuth:
+    type: oauth2
+    description: Security OAuth
+    flow: application
+    tokenUrl: http://host.com
+    x-tokenIntrospect:
+      url: $(security-url)
+  x-IBM-Client-Id:
+    type: apiKey
+    description: Client Id registered in API Portal
+    in: header
+    name: X-IBM-Client-Id
+security:
+- x-IBM-Client-Id: []
+  Security OAuth: []
+paths:
+  /:
+    get:
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/_GetLoansDetailResponse'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Errors'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Errors'
+        403:
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Errors'
+        404:
+          description: Not found
+          schema:
+            $ref: '#/definitions/Errors'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+        503:
+          description: Service unavailable
+          schema:
+            $ref: '#/definitions/Errors'
+        504:
+          description: Gateway timeout
+          schema:
+            $ref: '#/definitions/Errors'
+      summary: Get loans for a customer
+      description: Get all loans available for a customer
+      parameters:
+      - $ref: '#/parameters/authorization'
+      - $ref: '#/parameters/language'
+      - $ref: '#/parameters/accept-language'
+      - $ref: '#/parameters/device-information'
+      - $ref: '#/parameters/content-type'
+      - $ref: '#/parameters/accept'
+      - $ref: '#/parameters/x-ibm-client-id'
+      - $ref: '#/parameters/x-b3-traceid'
+      - $ref: '#/parameters/x-b3-parentspanid'
+      - $ref: '#/parameters/x-b3-spanid'
+      - $ref: '#/parameters/x-b3-sampled'
+      - $ref: '#/parameters/x-santander-audit'
+      - $ref: '#/parameters/trusted-device-app-id'
+      - $ref: '#/parameters/santander-cipher-type'
+      - $ref: '#/parameters/santander-cipher-seed'
+      - $ref: '#/parameters/trusted-device-time'
+      - $ref: '#/parameters/trusted-device-params'
+
+      security:
+      - JWTProfile:
+        - loansdet.read
+      operationId: GETLoans
+
+  /{loan_id}:
+    get:
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/_GetLoanDetailResponse'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Errors'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Errors'
+        403:
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Errors'
+        404:
+          description: Not found
+          schema:
+            $ref: '#/definitions/Errors'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+        503:
+          description: Service unavailable
+          schema:
+            $ref: '#/definitions/Errors'
+        504:
+          description: Gateway timeout
+          schema:
+            $ref: '#/definitions/Errors'
+      summary: Allows aplications to get the detail of a loan
+      description: Allows aplications to get the detail of a loan
+      parameters:
+      - $ref: '#/parameters/authorization'
+      - $ref: '#/parameters/language'
+      - $ref: '#/parameters/accept-language'
+      - $ref: '#/parameters/device-information'
+      - $ref: '#/parameters/content-type'
+      - $ref: '#/parameters/accept'
+      - $ref: '#/parameters/x-ibm-client-id'
+      - $ref: '#/parameters/x-b3-traceid'
+      - $ref: '#/parameters/x-b3-parentspanid'
+      - $ref: '#/parameters/x-b3-spanid'
+      - $ref: '#/parameters/x-b3-sampled'
+      - $ref: '#/parameters/x-santander-audit'
+      - $ref: '#/parameters/trusted-device-app-id'
+      - $ref: '#/parameters/santander-cipher-type'
+      - $ref: '#/parameters/santander-cipher-seed'
+      - $ref: '#/parameters/trusted-device-time'
+      - $ref: '#/parameters/trusted-device-params'
+
+      - name: loan_id
+        type: string
+        required: true
+        in: path
+        description: Number of the loan to be used in the query, in local format
+        x-example: 004915001030005450
+      security:
+      - JWTProfile:
+        - loansdet.read
+      operationId: GETLoanDetail
+definitions:
+#==========================================================
+# _LoanDetails
+#==========================================================
+  _GetLoansDetailResponse:
+    description : "Data structure containing information about a loan"
+    type : "object"
+    x-bizObjRef: Loan
+    properties:
+      loans:
+        type: array
+        items:
+          $ref : "#/definitions/_GetLoanDetailResponse"
+
+  _GetLoanDetailResponse:
+    description : "Data structure containing information about a loan"
+    type : "object"
+    x-bizObjRef: Loan
+    properties:
+      loanIdentification:
+        $ref : "#/definitions/LoanIdentification"
+      loanId :
+          type : "string"
+          description : "Unique loan ID"
+          example : "2231231124124"
+      channelAccessAgreementInformation:
+        $ref : "#/definitions/ChannelAccessAgreementInformation"
+      typeCode:
+        type : "string"
+        description : "Loan type code"
+        example : "M"
+      typeDescription:
+        type: "string"
+        description: "Loan type description"
+        example: "mortgage"
+      conditions :
+        type : "object"
+        description : "Data structure containing information about the loan conditions"
+        properties :
+          interestTypeCode :
+            type : "string"
+            description : "Code for the interest type"
+            maxLength : 2
+            example : "V"
+          interestTypeDescription :
+            type : "string"
+            description : "Description of the interest type"
+            maxLength : 20
+            example : "Variable"
+          interestRate :
+            description : "Applied interest rate, expressed as a percentage"
+            type : "number"
+            format : "float"
+            example : 1.75
+          interestRateDescription :
+            description : "Description of the annual interest rate"
+            type : "string"
+            example : "TAE (Euribor + Diferencial 0,50 %)"
+          referenceRate :
+            type : "object"
+            description : "Data structure containing information about the reference rate"
+            properties :
+              referenceIndexName :
+                description : "Reference rate or basis rate on which a variable rate is based"
+                type : "string"
+                example : "Euribor un año"
+      openingDate :
+        type : "string"
+        description : "Date when the proceeds for the loan were initially disbursed.\n\nThe value uses the complete data format defined in ISO 8601:\n\n'YYYY-MM-DD'\n\nWhere:\n- YYYY: 4-digit year\n- MM: 2-digit month (for example, 01 = January)\n- DD: 2-digit day of the month (01 through 31)"
+        format : "date"
+        example : "2017-01-21"
+      maturityDate :
+        type : "string"
+        description : "Date when the borrower's final loan payment is due.\n\nThe value uses the complete data format defined in ISO 8601:\n\n'YYYY-MM-DD'\n\nWhere:\n- YYYY: 4-digit year\n- MM: 2-digit month (for example, 01 = January)\n- DD: 2-digit day of the month (01 through 31)"
+        format : "date"
+        example : "2030-12-31"
+      coolingPeriodIndicator :
+        type : "boolean"
+        description : "Whether the borrower has the right to cancel the loan agreement"
+        example : true
+      statusInfo:
+        $ref : "#/definitions/StatusInfo"
+      isRevocable :
+        type : "boolean"
+        description : "Whether the loan is revocable"
+        example : false
+      numberOfPendingPayments:
+        type: string
+        description: "Number of pending loan instalments"
+        example: "213"
+      paymentsPeriodicity :
+        type : "object"
+        description : "Data structure containing information about a periodicity. A periodicity is expressed as a time unit and a frequency of execution."
+        properties :
+          periodTypeDescription :
+            type : "string"
+            description : "Description of the time unit in which the periodicity is measured"
+            example : "Years"
+      contract :
+        type : "object"
+        description : "Data structure containing contract information"
+        properties :
+          product:
+            type : "object"
+            description : "Data structure containing product information. Products can be services or goods."
+            properties :
+              name :
+                type : "string"
+                description : "Product name"
+                example : "Prestamo hipotecario 123"
+                maxLength : 50
+          document:
+            $ref: "#/definitions/File"
+      balances :
+        $ref: "#/definitions/LoanBalances"
+      associatedAccount :
+        $ref : "#/definitions/Account"
+#============================================================================
+# LoanIdentification
+#============================================================================
+  LoanIdentification :
+    description : "Data structure containing identification information for a loan"
+    type : "object"
+    properties :
+       displayNumber :
+          description : "Displayed loan number"
+          type : "string"
+          example : "2231231124124"
+#============================================================================
+# StatusInfo
+#============================================================================
+  StatusInfo :
+    description : "Data structure containing information about the status of an item"
+    type : "object"
+    properties :
+      statusCode :
+        type : "string"
+        description : "Status code"
+        example : "OP"
+      statusDescription :
+        type : "string"
+        description : "Status description"
+        example : "OPEN"
+#============================================================================
+# LoanBalances
+#============================================================================
+  LoanBalances :
+    type : "object"
+    description : "Data structure containing information about different loan balances"
+    properties :
+      principal :
+        type : "object"
+        description : "Data structure containing the principal balance. The principal balance is the remaining loan balance to be paid."
+        properties :
+              amount :
+                $ref : "#/definitions/Amount"
+              type :
+                type : "string"
+                description : "Balance type, in a coded form."
+                example: "principal_balance"
+ #============================================================================
+ # Amount
+
+ #============================================================================
+  Amount :
+    description : "Data structure containing amount details"
+    type : "object"
+    required :
+    - amount
+    - currency
+    properties :
+       amount :
+          description : "Amount.\n\nThe value uses the data format defined in ISO 20022 and has a maximum of 18 digits, of which 5 can be decimals, separated by a point.\n\nRange value is between -1.0E13 and 1.0E13"
+          type : "string"
+          example : "99.95"
+       currency :
+          description : "Currency code.\n\nThe value is in the alpha-3 format defined in ISO 4217 (https://www.iso.org/iso-4217-currency-codes.html)."
+          type : "string"
+          minLength : 3
+          maxLength : 3
+          pattern : (^.{3}$)
+          example : "EUR"
+#============================================================================
+# ChannelAccessAgreementInformation
+#============================================================================
+  ChannelAccessAgreementInformation :
+    description : "Data structure containing information for a global position."
+    type : "object"
+    properties :
+       alias :
+          type : "string"
+          description : "Name (alias) that the customer has assigned to the item for easy identification. Only required for customer usability."
+          example : "My mortgage for the village house"
+       isMainItem :
+          type : "boolean"
+          description : "Whether the item is the customer's main item. Applies only when the operation is used by a physical or business customer, not when used by Santander staff.\n\nThe possible values are:\n- true = Main item\n- false = Secondary item"
+          example : true
+ #============================================================================
+ # File
+
+ #============================================================================
+  File :
+    description : "Data structure containing file details"
+    type : "object"
+    properties :
+       fileId :
+          type : "string"
+          description : "Unique file ID"
+          example : "2139j3ndfuiofnk23jkduiog"
+       instance :
+          type : "string"
+          description : "Document storage location"
+          example : "repository1"
+       typeCode :
+          type : "string"
+          description : "Document type code"
+          example : "Santdr-eDoc"
+       typeDescription :
+          type : "string"
+          description : "Description of the document type"
+          example : "SCC_COMUNICADOS"
+       referencelink :
+          type : "string"
+          description : "Reference link"
+          example : "/documents/2139j3ndfuiofnk23jkduiog?repository_id=repositorio1&document_type=SCC_COMUNICADOS"
+#============================================================================
+ # Account
+
+ #============================================================================
+  Account :
+    type : "object"
+    description : "Data structure containing account information"
+    properties :
+       accountId :
+          description : "Account number.\n\nThe value uses the format defined in 'accountIdType'."
+          type : "string"
+          example : "21000418401234567891"
+       bankId :
+         type: string
+         description : "Unique bank ID"
+         x-example : "AAOZ"
+       accountIdType :
+          type : "string"
+          description : "Format used for the account number"
+          enum :
+          - INT
+          - IBAN
+          - BBAN
+          - TXT
+          example: "BBAN"
+       accountIdentification :
+        description : "Data structure containing information related to account identification"
+        type : "object"
+        properties :
+          displayNumber :
+                description : "Displayed account number"
+                type : "string"
+                example : "ES6621000418401234567891"
+       accountDetailsLink:
+        type: string
+        description: "Link to the account details.The exact value depends on the data to be accessed."
+        example: /accounts/{account_id}
+       openingDate :
+          type : "string"
+          format : "date"
+          description : "Date on which the account and related basic services are operational for the account owner.\n\nThe value uses the complete data format defined in ISO 8601:\n\n'YYYY-MM-DD'\n\nWhere:\n- YYYY: 4-digit year\n- MM: 2-digit month (for example, 01 = January)\n- DD: 2-digit day of the month (01 through 31)"
+          example : "2015-10-08"
+       closingDate :
+          type : "string"
+          format : "date"
+          description : "Date on which the account and related services cease to be operational for the account owner.\n\nThe value uses the complete data format defined in ISO 8601:\n\n'YYYY-MM-DD'\n\nWhere:\n- YYYY: 4-digit year\n- MM: 2-digit month (for example, 01 = January)\n- DD: 2-digit day of the month (01 through 31)"
+          example : "9999-12-31"
+
+# ============================================================================================================  $$$$$$$
+
+  Errors:
+    type: object
+    description: "Data structure containing the details for errors"
+    properties:
+       errors:
+          description: "Array of errors"
+          type: array
+          items:
+             $ref: "#/definitions/Error"
+# ============================================================================================================  $$$$$$$
+
+  Error:
+    type: object
+    description: "Data structure containing the error details"
+    properties:
+       code:
+          type: string
+          description: "Unique alphanumeric human readable error code"
+          example: "ERR001"
+       message:
+          type: string
+          description: "Brief summary of the reported issue"
+          example: "Invalid Action"
+       level:
+          type: string
+          description: "Level of the reported issue"
+          enum:
+          - info
+          - warning
+          - error
+          example: "error"
+       description:
+          type: string
+          description: "Detailed description of the reported issue"
+          example: "Description"
+parameters:
+  authorization:
+    name: authorization
+    type: string
+    required: true
+    in: header
+    description: Field to send the access token to the API, initially OAuth and JWT.
+  language:
+    name: language
+    type: string
+    required: true
+    in: header
+    description: The server responds with the field in the header with the response language. Following the ([ISO 639-2]-[ISO 3166-1/Alpha3]) code standard.
+    x-example: Spain will be es-ESP
+  accept-language:
+    name: accept-language
+    type: string
+    required: false
+    in: header
+    description: The consumer list of languages by order of preference. Following the (([ISO 639-2]-[ISO 3166-1/Alpha3])) code standard.
+    x-example: Spain will be es-ESP
+  device-information:
+    name: device-information
+    type: string
+    required: true
+    in: header
+    description: >-
+      CHANNEL/SEGMENT FRONT_APP/VERSION DEVICE OS/OS_VERSION NETWORK_CLIENT/VERSION FRAMEWORK/VERSION
+
+      Channel: [ISO 639-2][] plus 5 custom contry digits. For
+      Segment: retail / business
+      Front_App/Version: For example OneApp/1.0
+      Device: Platform value extracted from the device. For example iPhone13
+      OS/VERSION: android / iOS / windows / linux / macOS, version is a platform value extracted from the device. For example iOS/1.0
+      Network_Client/Version: App network client and version. For example CF_Network/5.1
+      Framework/Version: For example Darwin/16.3.0
+  content-type:
+    name: content-type
+    type: string
+    required: false
+    in: header
+    description: The server responds with the data format of the response. Backend expected a JSON document format.
+    x-example: application/json
+  #
+  # STANDARD HEADER
+  #
+  accept:
+    name: accept
+    type: string
+    required: false
+    in: header
+    description: The consumer request the data format of the response by order of preference.Backend expected a JSON document format.
+    x-example: application/json
+  x-ibm-client-id:
+    name: x-ibm-client-id
+    type: string
+    required: false
+    in: header
+    description: The consumer application identifier (only for IBM API Connect). Legacy. Will be reviewed in future releases.
+  #
+  # TRACK HEADERS
+  # Useful information at https://github.com/openzipkin/b3-propagation
+  #
+  x-b3-traceid:
+    name: x-b3-traceid
+    type: string
+    required: false
+    in: header
+    description: The TraceId is 64 or 128-bit in length and indicates the overall ID of the trace. Every span in a trace shares this ID
+    x-example: 463ac35c9f6413ad48485a3953bb6124
+  x-b3-parentspanid:
+    name: x-b3-parentspanid
+    type: string
+    required: false
+    in: header
+    description: The ParentSpanId is 64-bit in length and indicates the position of the parent operation in the trace tree. When the span is the root of the trace tree, there is no ParentSpanId.
+    x-example: 0020000000000001
+  x-b3-spanid:
+    name: x-b3-spanid
+    type: string
+    required: false
+    in: header
+    description: The SpanId is 64-bit in length and indicates the position of the current operation in the trace tree. The value should not be interpreted. It may or may not be derived from the value of the TraceId
+    x-example: a2fb4a1d1a96d312
+  x-b3-sampled:
+    name: x-b3-sampled
+    type: string
+    required: false
+    in: header
+    description: >-
+      Sampling is a mechanism to reduce the volume of data that ends up in the tracing system. In B3, sampling applies consistently per-trace: once the sampling decision is made, the same value should be consistently sent downstream. This means you will see all spans sharing a trace ID or none.
+
+      Accepted values are\n
+
+      * 1. Means accepted\n
+      * 0. Means denied
+
+      Before this specification was written, some tracers propagated X-B3-Sampled as true or false as opposed to 1 or 0. While you shouldn't encode x-b3-sampled as true or false, a lenient implementation may accept them
+    x-example: 1
+  #
+  # Only for UK
+  #
+  x-santander-audit:
+    name: x-santander-audit
+    type: string
+    required: false
+    in: header
+    description: Extra information coming from the client. Needed for audit purposes
+  #
+  # Only for Poland
+  #
+  trusted-device-app-id:
+    name: trusted-device-app-id
+    type: string
+    required: false
+    in: header
+    description: Device information permitted by operation for data query. Makes it possible to apply an experience base to optimize the data collection. This header is mandatory for Poland due to security reasons
+  trusted-device-time:
+    name: trusted-device-time
+    type: string
+    required: false
+    in: header
+    description: Device time formatted presenting the following the Standard Time Format pattern yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+    x-example: "2022-04-12T15:55:39.407Z"
+  trusted-device-params:
+    name: trusted-device-params
+    type: string
+    required: false
+    in: header
+    description: Contains encripted parameters from the trusted device parameter source.
+  #
+  # SECURITY HEADERS
+  #
+  santander-cipher-type:
+    name: santander-cipher-type
+    type: string
+    required: false
+    in: header
+    description: >-
+      Indicates what kind of cipher algorithmic approach will be applied to a response fields subset.
+
+      Supported values:
+      * asymmetric
+  santander-cipher-seed:
+    name: santander-cipher-seed
+    type: string
+    required: false
+    in: header
+    description: Seed value applied on both sides to encrypt/decrypt response entity fields. This field is mandatory if Santander-Cipher-Type is presented and is asymetric in the request Headers collection.
+x-ibm-endpoints:
+- endpointUrl: https://apigw.extexpintcons.totta.pre.corp/sanpt/external-intcons
+  description: APIMgmt_A99DDCFA34
+  type:
+  - production
+  - development
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: realized
+...
